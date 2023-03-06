@@ -3,10 +3,11 @@ FROM golang:1.18.4-alpine as base
 RUN mkdir /app
 ADD . /app
 WORKDIR /app
-RUN go build -o main .
+RUN apk add build-base && GIN_MODE=release go build -o main .
 
-FROM bitnami/kubectl:1.20.9 as kubectl
+FROM alpine as final
 
 COPY --from=base /app/main /app/main
+RUN apk add build-base
 
-ENTRYPOINT ["/app/main"]
+ENTRYPOINT ["GIN_MODE=release", "/app/main"]
